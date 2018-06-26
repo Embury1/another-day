@@ -174,7 +174,7 @@ program
 
                     const duration = moment.duration(endTime.diff(startTime));
                     const adjusted = Math.max(Math.round(duration.as('hours') * 2) / 2, 0.5);
-                    log([chalk.yellow(pad(adjusted + 'h', 7)), chalk.green(pad(project, 16)), chalk.gray(pad(id, 9)), chalk.white(task)].join(''));
+                    log(chalk`{yellow ${pad(adjusted + 'h', 7)}}{green ${pad(project, 16)}}{gray ${pad(id, 9)}}{white ${task}}`);
                 }
             } catch (err) {
                 if (cmd.verbose) {
