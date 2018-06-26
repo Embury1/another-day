@@ -144,6 +144,9 @@ program
         const startDate = startArg ? moment(startArg) : moment();
         const endDate = endArg ? moment(endArg) : startDate;
         const range = moment.range(startDate, endDate);
+
+        log(chalk.inverse([pad('Time', 7), pad('Project', 16), pad('ID', 9), pad('Task', 64)].join('')));
+
         for (const day of Array.from(range.by('days')).map(m => m.format('YYYY-MM-DD'))) {
             try {
                 const filename = `${day}.txt`;
