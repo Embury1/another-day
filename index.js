@@ -5,7 +5,7 @@ const os = require('os');
 const { join } = require('path');
 
 const program = require('commander');
-const Moment = require('moment');
+const Moment = require('moment-timezone');
 const MomentRange = require('moment-range');
 const moment = MomentRange.extendMoment(Moment);
 const chalk = require('chalk');
@@ -100,14 +100,16 @@ function readFile(path, filename) {
 }
 
 program
-    .command('task <project> <task> [id]')
+    .command('task <project> <task>')
     .alias('t')
     .description('Marks the current time as the start of a new task.')
     .option('-v, --verbose', 'Verbose logging')
-    .action(async (projectArg, taskArg, idArg, cmd) => {
-        const now = moment();
-        const filename = `${now.format('YYYY-MM-DD')}.txt`;
-        const chunk = ['task', now.format('HH:mm:ss'), projectArg, taskArg, idArg].join('|') + os.EOL;
+    .option('-t, --time [start]', 'Start time (e.g. 08:00)')
+    .option('-i, --id', 'Task ID in VSTS')
+    .action(async (projectArg, taskArg, cmd) => {
+        const time = cmd.time ? moment.tz(cmd.time, 'HH:mm:ss', 'Europe/Stockholm') : moment();
+        const filename = `${time.format('YYYY-MM-DD')}.txt`;
+        const chunk = ['task', time.utc().format('HH:mm:ss'), projectArg, taskArg, cmd.id].join('|') + os.EOL;
         try {
             await writeFile(storePath, filename, chunk);
         } catch (err) {
@@ -122,10 +124,11 @@ program
     .alias('b')
     .description('Sets a break at the current time. The time between a break and a mark will not be included.')
     .option('-v, --verbose', 'Verbose logging')
+    .option('-t, --time [end]', 'End time (e.g. 17:00)')
     .action(async (cmd) => {
-        const now = moment();
-        const filename = `${now.format('YYYY-MM-DD')}.txt`;
-        const chunk = ['break',  now.format('HH:mm:ss')].join('|') + os.EOL;
+        const time = cmd.time ? moment.tz(cmd.time, 'HH:mm:ss', 'Europe/Stockholm') : moment();
+        const filename = `${time.format('YYYY-MM-DD')}.txt`;
+        const chunk = ['break',  time.utc().format('HH:mm:ss')].join('|') + os.EOL;
         try {
             await writeFile(storePath, filename, chunk);
         } catch (err) {
@@ -162,14 +165,14 @@ program
                         continue;
                     }
 
-                    const startTime = moment(day + ' ' + time);
+                    const startTime = moment.utc(day + ' ' + time).tz('Europe/Stockholm');
                     const nextEntry = entries.peek();
 
-                    let endTime = moment(day).endOf('day');
+                    let endTime = moment(day).endOf('day').utc();
                     if (nextEntry) {
-                        endTime = moment(day + ' ' + nextEntry.split('|')[1]);
+                        endTime = moment.utc(day + ' ' + nextEntry.split('|')[1]);
                     } else if (moment() < endTime) {
-                        endTime = moment();
+                        endTime = moment().utc();
                     }
 
                     const duration = moment.duration(endTime.diff(startTime));
