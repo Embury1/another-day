@@ -148,7 +148,7 @@ program
         const endDate = endArg ? moment(endArg) : startDate;
         const range = moment.range(startDate, endDate);
 
-        log(chalk.inverse([pad('Time', 7), pad('Project', 16), pad('ID', 9), pad('Task', 64)].join('')));
+        log(chalk.inverse([pad('Time', 8), pad('Project', 16), pad('ID', 9), pad('Task', 64)].join('')));
 
         for (const day of Array.from(range.by('days')).map(m => m.format('YYYY-MM-DD'))) {
             try {
@@ -165,19 +165,20 @@ program
                         continue;
                     }
 
-                    const startTime = moment.utc(day + ' ' + time).tz('Europe/Stockholm');
+                    let timestamp = '';
                     const nextEntry = entries.peek();
 
-                    let endTime = moment(day).endOf('day').utc();
                     if (nextEntry) {
-                        endTime = moment.utc(day + ' ' + nextEntry.split('|')[1]);
-                    } else if (moment() < endTime) {
-                        endTime = moment().utc();
+                        const startTime = moment.utc(day + ' ' + time).tz('Europe/Stockholm');
+                        const endTime = moment.utc(day + ' ' + nextEntry.split('|')[1]);
+                        const duration = moment.duration(endTime.diff(startTime));
+                        const adjusted = Math.max(Math.round(duration.as('hours') * 2) / 2, 0.5);
+                        timestamp = adjusted + 'h';
+                    } else {
+                        timestamp = '~';
                     }
 
-                    const duration = moment.duration(endTime.diff(startTime));
-                    const adjusted = Math.max(Math.round(duration.as('hours') * 2) / 2, 0.5);
-                    log(chalk`{yellow ${pad(adjusted + 'h', 7)}}{green ${pad(project, 16)}}{gray ${pad(id, 9)}}{white ${task}}`);
+                    log(chalk`{yellow ${pad(timestamp, 8)}}{green ${pad(project, 16)}}{gray ${pad(id, 9)}}{white ${task}}`);
                 }
             } catch (err) {
                 if (cmd.verbose) {
