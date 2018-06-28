@@ -17,6 +17,8 @@ const error = console.error;
 const homedir = require('os').homedir();
 const storePath = join(homedir, 'another-day');
 
+const timezone = 'Europe/Stockholm';
+
 class Iterator {
     constructor(elements) {
         this.elements = elements;
@@ -107,7 +109,7 @@ program
     .option('-t, --time [start]', 'Start time (e.g. 08:00)')
     .option('-i, --id', 'Task ID in VSTS')
     .action(async (projectArg, taskArg, cmd) => {
-        const time = cmd.time ? moment.tz(cmd.time, 'HH:mm:ss', 'Europe/Stockholm') : moment();
+        const time = cmd.time ? moment.tz(cmd.time, 'HH:mm:ss', timezone) : moment.tz(timezone);
         const filename = `${time.format('YYYY-MM-DD')}.txt`;
         const chunk = ['task', time.utc().format('HH:mm:ss'), projectArg, taskArg, cmd.id].join('|') + os.EOL;
         try {
@@ -126,7 +128,7 @@ program
     .option('-v, --verbose', 'Verbose logging')
     .option('-t, --time [end]', 'End time (e.g. 17:00)')
     .action(async (cmd) => {
-        const time = cmd.time ? moment.tz(cmd.time, 'HH:mm:ss', 'Europe/Stockholm') : moment();
+        const time = cmd.time ? moment.tz(cmd.time, 'HH:mm:ss', timezone) : moment.tz(timezone);
         const filename = `${time.format('YYYY-MM-DD')}.txt`;
         const chunk = ['break',  time.utc().format('HH:mm:ss')].join('|') + os.EOL;
         try {
@@ -169,7 +171,7 @@ program
                     const nextEntry = entries.peek();
 
                     if (nextEntry) {
-                        const startTime = moment.utc(day + ' ' + time).tz('Europe/Stockholm');
+                        const startTime = moment.utc(day + ' ' + time);
                         const endTime = moment.utc(day + ' ' + nextEntry.split('|')[1]);
                         const duration = moment.duration(endTime.diff(startTime));
                         const adjusted = Math.max(Math.round(duration.as('hours') * 2) / 2, 0.5);
