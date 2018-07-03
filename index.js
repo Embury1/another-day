@@ -49,7 +49,7 @@ class Iterator {
 function checkDirectory(path) {
     return new Promise((resolve, reject) => {
         fs.stat(storePath, (err) => {
-            if (err && err.errno === -2) {
+            if (err && (err.errno === -2 || err.code === 'ENOENT')) {
                 fs.mkdir(storePath, (err) => {
                     if (err) {
                         reject(err);
