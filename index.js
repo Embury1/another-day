@@ -151,7 +151,7 @@ program
     .description('Marks the current time as the start of a new task.')
     .option('-v, --verbose', 'Verbose logging')
     .option('-t, --time [start]', 'Start time (e.g. 08:00)')
-    .option('-i, --id', 'Task ID in VSTS')
+    .option('-i, --id [id]', 'Task ID in VSTS')
     .action(async (projectArg, taskArg, cmd) => {
         const time = cmd.time ? moment.tz(cmd.time, 'HH:mm:ss', timezone) : moment.tz(timezone);
         const filename = `${time.format('YYYY-MM-DD')}.txt`;
