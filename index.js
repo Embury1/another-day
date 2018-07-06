@@ -199,6 +199,7 @@ program
                 const filename = `${day}.txt`;
                 const data = await readFile(storePath, filename);
                 const entries = new Iterator(data.split(os.EOL));
+                let total = 0;
                 
                 for (const entry of entries) {
                     if (!entry) {
@@ -221,6 +222,7 @@ program
 
                     const duration = moment.duration(endTime.diff(startTime));
                     const adjusted = Math.max(Math.round(duration.as('hours') * 2) / 2, 0.5);
+                    total += adjusted;
                     let timestamp = adjusted + 'h';
 
                     if (!nextEntry) {
@@ -229,6 +231,8 @@ program
 
                     log(chalk`{yellow ${pad(timestamp, 7)}}{green ${pad(project, 16)}}{gray ${pad(id, 9)}}{white ${task}}`);
                 }
+        
+                log(chalk.inverse(pad(`Total: ${total}h`, 96)));
             } catch (err) {
                 if (cmd.verbose) {
                     error(err);
