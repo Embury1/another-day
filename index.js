@@ -44,6 +44,18 @@ class Iterator {
     peek() {
         return this.elements[this.index];
     }
+
+    begin() {
+        return this.elements[0];
+    }
+
+    end() {
+        return this.elements[this.elements.length - 1];
+    }
+
+    elementAt(index) {
+        return this.elements[index];
+    }
 }
 
 function checkDirectory(path) {
@@ -155,7 +167,23 @@ program
     .action(async (projectArg, taskArg, cmd) => {
         const time = cmd.time ? moment.tz(cmd.time, 'HH:mm:ss', timezone) : moment.tz(timezone);
         const filename = `${time.format('YYYY-MM-DD')}.txt`;
-        const chunk = ['task', time.utc().format('HH:mm:ss'), projectArg, taskArg, cmd.id].join('|') + os.EOL;
+        let project = projectArg;
+        let task = taskArg;
+        let id = cmd.id;
+
+        const reuseOperatorRegex = new RegExp('^\$\d+$');
+        if (reuseOperatorRegex.test(projectArg) || reuseOperatorRegex.test(taskArg) || reuseOperatorRegex.test(cmd.id)) {
+            const data = await readFile(storePath, filename);
+            const entries = new Iterator(data.split(os.EOL));
+            // Read contents of file
+            // Try to find matching element
+            // Use value from matching element if found
+        } else {
+
+        }
+
+        const chunk = ['task', time.utc().format('HH:mm:ss'), project, task, id].join('|') + os.EOL;
+
         try {
             await writeFile(storePath, filename, chunk);
         } catch (err) {
