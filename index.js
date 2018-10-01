@@ -158,7 +158,7 @@ function resolveDays(startArg, endArg) {
 }
 
 program
-    .command('task <project> <task>')
+    .command('task [project] [task]')
     .alias('t')
     .description('Marks the current time as the start of a new task.')
     .option('-v, --verbose', 'Verbose logging')
@@ -167,8 +167,8 @@ program
     .action(async (projectArg, taskArg, cmd) => {
         const time = cmd.time ? moment.tz(cmd.time, 'HH:mm:ss', timezone) : moment.tz(timezone);
         const filename = `${time.format('YYYY-MM-DD')}.txt`;
-        let project = projectArg;
-        let task = taskArg;
+        let project = projectArg || '';
+        let task = taskArg || '';
         let id = cmd.id;
 
         const reuseOperatorRegex = new RegExp('^\$\d+$');
