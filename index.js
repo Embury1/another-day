@@ -19,6 +19,7 @@ const storePath = join(homedir, 'another-day');
 
 const timezone = 'Europe/Stockholm';
 const dateFormat = '^[0-9]{4}-[0-9]{2}-[0-9]{2}$';
+const dayIndexFormat = '^\\+?[0-9]+$';
 
 moment.locale('sv');
 
@@ -137,6 +138,19 @@ const dateResolvers = {
     '^month$': () => {
         const start = moment().startOf('month');
         const end = moment();
+        return moment.range(start, end);
+    },
+    [dayIndexFormat]: (startArg, endArg) => {
+        let startIndex = Number(startArg);
+        let endIndex = startIndex;
+        if (new RegExp(dayIndexFormat).test(endArg)) {
+            endIndex = Number(endArg);
+            if (endIndex > startIndex) {
+                [startIndex, endIndex] = [endIndex, startIndex];
+            }
+        }
+        const start = moment().add(-startIndex, 'days');
+        const end = moment().add(-endIndex, 'days');
         return moment.range(start, end);
     }
 };
